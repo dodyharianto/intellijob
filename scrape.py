@@ -10,7 +10,7 @@ def scrape_google_jobs(query):
         "engine": "google_jobs",
         "q": query,
         "hl": "en",
-        "api_key": SERPAPI_KEY
+        "api_key": SERPAPI_API_KEY
     }
 
     search = GoogleSearch(params)
