@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
-SERPAPI_KEY = os.getenv('SERPAPI_KEY') 
+SERPAPI_API_KEY = os.getenv('SERPAPI_KEY') 
 
 def scrape_google_jobs(query):
     params = {
