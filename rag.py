@@ -1,38 +1,48 @@
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_openai import OpenAIEmbeddings
+from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_community.vectorstores import Chroma
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
-root_folder = 'docs'
-docs = os.listdir(root_folder)
-print(docs)
+def embed_documents(root_folder='docs'):
+    docs = os.listdir(root_folder)
+    print(docs)
 
-all_chunks = []
-documents = []
-for doc in docs:
-    file_path = os.path.join(root_folder, doc)
-    pdf_loader = PyPDFLoader(file_path)
-    document = pdf_loader.load()
-    documents.append(document)
+    all_chunks = []
+    documents = []
+    for doc in docs:
+        file_path = os.path.join(root_folder, doc)
+        pdf_loader = PyPDFLoader(file_path)
+        document = pdf_loader.load()
+        documents.append(document)
 
-    splitter = RecursiveCharacterTextSplitter(
-        separators=['\n\n', '\n', '.', ' '],
-        chunk_size=500,
-        chunk_overlap=20
+        splitter = RecursiveCharacterTextSplitter(
+            separators=['\n\n', '\n', '.', ' '],
+            chunk_size=500,
+            chunk_overlap=20
+        )
+        chunks = splitter.split_documents(document)
+        all_chunks.extend(chunks)
+
+    embeddings = OpenAIEmbeddings(model='text-embedding-3-small')
+    vector_store = Chroma.from_documents(
+        documents=all_chunks,
+        embedding=embeddings,
+        persist_directory='intellijob_embedding_db'
     )
-    chunks = splitter.split_documents(document)
-    all_chunks.extend(chunks)
 
+    print(f'Added {len(all_chunks)} chunks to vector database.')
+    return vector_store
 
-embeddings = OpenAIEmbeddings(model='text-embedding-3-small')
-vector_store = Chroma.from_documents(
-    documents=all_chunks,
-    embedding=embeddings,
-    persist_directory='intellijob_embedding_db'
-)
+def retrieve_chunks(query):
+    embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+    vector_store = Chroma(
+        embedding_function=embeddings,
+        persist_directory="intellijob_embedding_db"
+    )
 
-print(f'Added {len(all_chunks)} chunks to vector database.')
+    results = vector_store.similarity_search(query, k=3)
+    print(f'Most relevant chunks: {results}')
