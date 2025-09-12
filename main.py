@@ -2,32 +2,39 @@ from openai import OpenAI
 import pandas as pd
 import numpy as np
 from dotenv import load_dotenv
-import os
-from memory import get_current_timestamp, add_message, get_chat_history
+from memory import add_message, get_chat_history
 
 load_dotenv()
 client = OpenAI()
 
-print(f'Get current timestamp: {get_current_timestamp()}')
+default_system_prompt = """
+You are an expert in helping user finding the most relevant jobs based on their resume and portfolio.
+"""
 
-def get_search_query():
-    system_prompt = """
-    You are an expert in interpreting the preferred job position/role based on user input.
-    Only output a clear job position to be used for Google search.
-    """
+def main_chat():
+    while True:
+        chat_history = get_chat_history(n_messages=5)
+        user_query = input("You [press 'Q' to quit]: ")
+        if user_query.lower() == 'q':
+            break
+        add_message(role='user', message=user_query)
 
-    user_query = input('Enter your preferred role or company: ')
+        system_prompt = f"""
+        {default_system_prompt}
 
-    response = client.responses.create(
-        model='gpt-5-nano',
-        input=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_query}
-        ]
-    )
+        You have access to the past conversation:
+        {chat_history}
+        """
+        response = client.responses.create(
+            model='gpt-5-nano',
+            input=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_query}
+            ]
+        )
+        
+        ai_response = response.output_text
+        print(f'IntelliJob💡: {ai_response}')
+        add_message(role='assistant', message=ai_response)
 
-    ai_response = response.output_text
-    return ai_response
-
-search_query = get_search_query()
-print(search_query)
+main_chat()

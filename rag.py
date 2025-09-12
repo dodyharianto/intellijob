@@ -6,6 +6,7 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
+embedding_dir = os.environ.get("EMBEDDING_DB_DIR")
 
 def embed_documents(root_folder='docs'):
     docs = os.listdir(root_folder)
@@ -31,7 +32,7 @@ def embed_documents(root_folder='docs'):
     vector_store = Chroma.from_documents(
         documents=all_chunks,
         embedding=embeddings,
-        persist_directory='intellijob_embedding_db'
+        persist_directory=embedding_dir
     )
 
     print(f'Added {len(all_chunks)} chunks to vector database.')
@@ -41,7 +42,7 @@ def retrieve_chunks(query):
     embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
     vector_store = Chroma(
         embedding_function=embeddings,
-        persist_directory="intellijob_embedding_db"
+        persist_directory=embedding_dir
     )
 
     results = vector_store.similarity_search(query, k=3)
