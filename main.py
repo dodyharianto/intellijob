@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from dotenv import load_dotenv
 from memory import add_message, get_chat_history
+from rag import embed_documents, retrieve_chunks
 
 load_dotenv()
 client = OpenAI()
@@ -19,8 +20,14 @@ def main_chat():
             break
         add_message(role='user', message=user_query)
 
+        retrieved_chunks = retrieve_chunks(user_query)
+        print(f'Most relevant chunks: {retrieved_chunks}')
+
         system_prompt = f"""
         {default_system_prompt}
+
+        You know that:
+        {retrieved_chunks}
 
         You have access to the past conversation:
         {chat_history}

@@ -18,14 +18,23 @@ def embed_documents(root_folder='docs'):
         file_path = os.path.join(root_folder, doc)
         pdf_loader = PyPDFLoader(file_path)
         document = pdf_loader.load()
-        documents.append(document)
+        documents.extend(document)
+
+        print(f'documents: {documents}')
 
         splitter = RecursiveCharacterTextSplitter(
-            separators=['\n\n', '\n', '.', ' '],
-            chunk_size=500,
-            chunk_overlap=20
+            separators=['\n\n', '\n'],
+            chunk_size=300,
+            chunk_overlap=50
         )
         chunks = splitter.split_documents(document)
+        now = get_current_timestamp()
+        for idx, chunk in enumerate(chunks):
+            chunk.metadata.update({
+                'chunk_id': idx,
+                'creation_date': now.strftime('%Y-%m-%d %H:%M:%S'),
+            })
+
         all_chunks.extend(chunks)
 
     embeddings = OpenAIEmbeddings(model='text-embedding-3-small')
@@ -36,7 +45,6 @@ def embed_documents(root_folder='docs'):
     )
 
     print(f'Added {len(all_chunks)} chunks to vector database.')
-    return vector_store
 
 def retrieve_chunks(query):
     embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
@@ -46,4 +54,6 @@ def retrieve_chunks(query):
     )
 
     results = vector_store.similarity_search(query, k=3)
-    print(f'Most relevant chunks: {results}')
+    return results
+
+embed_documents('docs')
