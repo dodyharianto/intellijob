@@ -4,6 +4,7 @@ import numpy as np
 from dotenv import load_dotenv
 from memory import add_message, get_chat_history
 from rag import embed_documents, retrieve_chunks
+from langchain_core.messages import SystemMessage, HumanMessage
 
 load_dotenv()
 client = OpenAI()
@@ -13,6 +14,7 @@ You are an expert in helping user finding the most relevant jobs based on their 
 """
 
 def main_chat():
+    collection_name = 'personal_docs'
     while True:
         chat_history = get_chat_history(n_messages=5)
         user_query = input("You [press 'Q' to quit]: ")
@@ -20,7 +22,7 @@ def main_chat():
             break
         add_message(role='user', message=user_query)
 
-        retrieved_chunks = retrieve_chunks(user_query)
+        retrieved_chunks = retrieve_chunks(collection_name, user_query, k=3)
         print(f'Most relevant chunks: {retrieved_chunks}')
 
         system_prompt = f"""
@@ -32,6 +34,8 @@ def main_chat():
         You have access to the past conversation:
         {chat_history}
         """
+        print(f'System prompt: {system_prompt}')
+
         response = client.responses.create(
             model='gpt-5-nano',
             input=[
