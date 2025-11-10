@@ -33,8 +33,8 @@ def embed_documents(collection_name, root_folder='docs'):
 
         splitter = RecursiveCharacterTextSplitter(
             separators=['\n\n', '\n'],
-            chunk_size=300,
-            chunk_overlap=50
+            chunk_size=700,
+            chunk_overlap=100
         )
         chunks = splitter.split_documents(document)
         now = get_current_timestamp()

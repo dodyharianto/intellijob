@@ -126,5 +126,3 @@ def build_workflow():
     memory = MemorySaver()
     app = workflow.compile(checkpointer=memory)
     return app
-
-print(search_google('any networking events soon?'))
