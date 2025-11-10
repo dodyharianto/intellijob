@@ -3,4 +3,5 @@ experiments*
 *db
 __pycache__
 .vscode
+*.html
 sample_files
