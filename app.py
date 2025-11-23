@@ -29,6 +29,26 @@ Use search_google:
 For your information, today date is {today_date}
 """
 
+@cl.set_starters
+async def starters():
+    return [
+        cl.Starter(
+            label='Search for jobs based on my profile',
+            message='Search for jobs based on my profile',
+            icon="/public/job.png"
+        ),
+        cl.Starter(
+            label='Find data science workshops',
+            message='Data science workshops',
+            icon="/public/networking.png"
+        ),
+        cl.Starter(
+            label=' Summarize my projects',
+            message='Summarize the projects listed on my portfolio',
+            icon="/public/summary.png"
+        ),
+    ]
+
 @cl.on_message
 async def main(message: cl.Message):
     """Process incoming user messages and stream back the AI's response."""
