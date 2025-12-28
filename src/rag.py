@@ -5,7 +5,7 @@ from langchain_chroma import Chroma
 from chromadb import PersistentClient
 import os
 from dotenv import load_dotenv
-from memory import get_current_timestamp
+from src.memory import get_current_timestamp
 
 load_dotenv()
 embedding_dir = os.environ.get("EMBEDDING_DB_DIR")

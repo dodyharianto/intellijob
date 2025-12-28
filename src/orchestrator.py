@@ -8,8 +8,8 @@ from langchain_openai import ChatOpenAI
 from langgraph.graph import StateGraph, START, END
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import ToolNode
-from rag import retrieve_chunks
-from job_search import scrape_google_jobs
+from src.rag import retrieve_chunks
+from src.job_search import scrape_google_jobs
 import operator
 
 client = OpenAI()

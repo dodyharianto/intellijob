@@ -4,7 +4,7 @@ import chainlit as cl
 import os
 from datetime import datetime
 from dotenv import load_dotenv
-from orchestrator import build_workflow
+from src.orchestrator import build_workflow
 
 app = build_workflow()
 
