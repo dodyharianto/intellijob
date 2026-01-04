@@ -3,20 +3,22 @@ import serpapi
 from dotenv import load_dotenv
 import os
 from openai import OpenAI
+from typing import List
+from src.schemas import JobResult
 
 load_dotenv()
 SERPAPI_API_KEY = os.getenv('SERPAPI_API_KEY') 
 
 client = OpenAI()
 
-def get_refined_search_query(user_query: str):
+def get_refined_search_query(user_query: str) -> str:
     system_prompt = """
     You are an expert in extracting interpreting the preferred job position/role based on user input.
-    Only output a clear job position to be used for Google search.
+    Only output a clear job title to be used for Google search.
     """
 
     response = client.responses.create(
-        model='gpt-5-nano',
+        model='gpt-4o-mini',
         input=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_query}
@@ -38,6 +40,19 @@ def scrape_google_jobs(query: str):
     }
 
     results = serpapi.search(**search_params)
-    jobs_results = results["jobs_results"]
-    jobs_results_df = pd.DataFrame(jobs_results)
-    return jobs_results_df
+    jobs_results = results.get('jobs_results')
+
+    clean_jobs = []
+    for job in jobs_results:
+        clean_job = JobResult(
+            title=job['title'],
+            company=job['company_name'],
+            location=job['location'],
+            link=job['share_link'],
+            description=job['description'],
+            salary=job['detected_extensions'].get('salary'),
+            posted_at=job['detected_extensions'].get('posted_at')
+        )
+        clean_jobs.append(clean_job)
+
+    return clean_jobs
